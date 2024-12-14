@@ -1,6 +1,7 @@
-FROM ubuntu:24.04
+FROM ubuntu:24.04 AS build-env
 
-RUN apt-get update && apt-get install -y git \
+RUN apt-get update && apt-get install -y \
+    git \
     autoconf \
     build-essential \
     make \
@@ -8,7 +9,6 @@ RUN apt-get update && apt-get install -y git \
     libtool \
     pkg-config \
     mesa-common-dev \
-    vim \
     libpixman-1-dev \
     libdrm-dev \
     libx11-dev \
@@ -38,7 +38,21 @@ RUN git clone https://github.com/saitoha/xserver-SIXEL.git --depth 1 && \
     ./build-xsixel.sh && \
     make install
 
-ENV DISPLAY=":0"
-ENV SCREEN="1920x1080"
+FROM ubuntu:24.04
 
+COPY --from=build-env /usr/local/bin/Xsixel /usr/local/bin/Xsixel
+COPY --from=build-env /usr/local/lib/libXfont.* /usr/local/lib/
+
+RUN apt-get update && apt-get install -y \
+    libpixman-1-0 \
+    libxau6 \
+    libsixel1 \
+    libfreetype6 \
+    libfontenc1  \
+    xkb-data \
+    x11-xkb-utils && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+ENV DISPLAY=":0" SCREEN="1920x1080"
 CMD ["sh", "-c", "Xsixel ${DISPLAY} -screen ${SCREEN} 2>/dev/null"]
