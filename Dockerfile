@@ -38,7 +38,7 @@ RUN git clone https://github.com/saitoha/xserver-SIXEL.git --depth 1 && \
     ./build-xsixel.sh && \
     make install
 
-ENV DISPLAY=":1"
+ENV DISPLAY=":0"
 ENV SCREEN="1920x1080"
 
 CMD ["sh", "-c", "Xsixel ${DISPLAY} -screen ${SCREEN} 2>/dev/null"]
